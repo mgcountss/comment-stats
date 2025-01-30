@@ -98,11 +98,11 @@ function expandUser(userId) {
 
     // Populate the user profile with data
     document.getElementById('user-name').textContent = user.name;
-    document.getElementById('user-comments').textContent = user.commentsG;
-    document.getElementById('user-replies').textContent = user.repliesG;
-    document.getElementById('user-interactions').textContent = user.interactions;
-    document.getElementById('user-likes').textContent = user.likesR;
-    document.getElementById('user-replies-received').textContent = user.repliesR;
+    document.getElementById('user-comments').textContent = user.commentsG.toLocaleString('en-US');
+    document.getElementById('user-replies').textContent = user.repliesG.toLocaleString('en-US');
+    document.getElementById('user-interactions').textContent = user.interactions.toLocaleString('en-US');
+    document.getElementById('user-likes').textContent = user.likesR.toLocaleString('en-US');
+    document.getElementById('user-replies-received').textContent = user.repliesR.toLocaleString('en-US');
     document.getElementById('user-first-comment').textContent = new Date(user.firstC).toLocaleString();
     document.getElementById('user-last-comment').textContent = new Date(user.lastC).toLocaleString();
     document.getElementById('user-first-reply').textContent = user.firstR ? new Date(user.firstR).toLocaleString() : 'N/A';
@@ -124,7 +124,7 @@ function expandUser(userId) {
         commentElement.innerHTML = `
         <h3 class="comment-name">${comment.authorDisplayName}</h3>
         <p class="comment-text">${text}</p>
-        <h6 class="comment-likes">${comment.likeCount} like${comment.likeCount === 1 ? '' : 's'} - ${comment.publishedAt}</h6>
+        <h6 class="comment-likes">${comment.likeCount.toLocaleString('en-US')} like${comment.likeCount === 1 ? '' : 's'} - ${comment.publishedAt}</h6>
         <hr>`;
         allCommentsSection.appendChild(commentElement);
     });
@@ -137,7 +137,7 @@ function expandUser(userId) {
         commentElement.innerHTML = `
         <h3 class="comment-name">${reply.authorDisplayName}</h3>
         <p class="comment-text">${text}</p>
-        <h6 class="comment-likes">${reply.likeCount} like${reply.likeCount === 1 ? '' : 's'} - ${reply.publishedAt}</h6>
+        <h6 class="comment-likes">${reply.likeCount.toLocaleString('en-US')} like${reply.likeCount === 1 ? '' : 's'} - ${reply.publishedAt}</h6>
         <hr>`;
         allRepliesSection.appendChild(commentElement);
     });
