@@ -84,7 +84,7 @@ function displayTopCommenters(commentsData) {
             const commenter = commenters[commenterId];
             commenter.allComments = removeDuplicates(commenter.allComments);
             commenter.allReplies = removeDuplicates(commenter.allReplies);
-            commenter.likes = commenter.likes/2;
+            commenter.likesR = Math.floor(commenter.likesR/2);
         });
 
         // Update the total number of comments and replies
