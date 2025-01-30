@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Comment Analysis</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div id="app">
+        <h1>YouTube Comment Analysis</h1>
+        <div class="totals">
+            <div>
+                <h1 id="comments">0</h1>
+                <h2>Comments</h2>
+            </div>
+            <div>
+                <h1 id="replies">0</h1>
+                <h2>Replies</h2>
+            </div>
+            <div>
+                <h1 id="likes">0</h1>
+                <h2>Likes</h2>
+            </div>
+            <div>
+                <h1 id="totalPosts">0</h1>
+                <h2>Total Posts</h2>
+            </div>
+        </div>
+        <hr>
+        <center>
+            <a href="./bar.html">View Bar Chart</a>
+            <h3>Last Update: 2025-01-26</h3>
+
+            <div class="chart-container">
+                <canvas id="engagementOverTimeChart"></canvas>
+            </div>
+        </center>
+        <div id="loader"></div>
+        <div id="user-profile" class="user-profile" style="display: none;">
+            <div id="user-details" class="profile-card">
+                <div class="detail-row">
+                    <p><strong>Name:</strong> <span id="user-name"></span></p>
+                    <p><strong>Total Comments:</strong> <span id="user-comments"></span></p>
+                </div>
+                <div class="detail-row">
+                    <p><strong>Total Replies:</strong> <span id="user-replies"></span></p>
+                    <p><strong>Total Interactions:</strong> <span id="user-interactions"></span></p>
+                </div>
+                <div class="detail-row">
+                    <p><strong>Likes Received:</strong> <span id="user-likes"></span></p>
+                    <p><strong>Replies Received:</strong> <span id="user-replies-received"></span></p>
+                </div>
+                <div class="detail-row">
+                    <p><strong>First Comment:</strong> <span id="user-first-comment"></span></p>
+                    <p><strong>Last Comment:</strong> <span id="user-last-comment"></span></p>
+                </div>
+                <div class="detail-row">
+                    <p><strong>First Reply:</strong> <span id="user-first-reply"></span></p>
+                    <p><strong>Last Reply:</strong> <span id="user-last-reply"></span></p>
+                </div>
+            </div>
+
+            <details class="collapsible-section">
+                <summary>All Comments</summary>
+                <div id="user-all-comments" class="collapsible-content"></div>
+            </details>
+
+            <details class="collapsible-section">
+                <summary>All Replies</summary>
+                <div id="user-all-replies" class="collapsible-content"></div>
+            </details>
+
+            <h3 class="graph-title">Engagement Graph</h3>
+            <center>
+                <p>A line graph of the users total likes and replies over time.</p>
+            </center>
+            <div class="chart-container">
+                <canvas id="engagementChart"></canvas>
+            </div>
+
+            <h3 class="graph-title">Interactions Chart</h3>
+            <center>
+                <p>A pie chart of who the user interacts with the most.</p>
+                <label id="uniqueReplyPeople">0 users</label>
+            </center>
+            <div class="chart-container">
+                <canvas id="interactionChart"></canvas>
+            </div>
+        </div>
+
+        <div class="topButtons">
+            <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
+            <button onclick="exportData('csv')">Export as CSV</button>
+            <button onclick="exportData('json')">Export as JSON</button>
+        </div>
+        <div id="top-commenters">
+            <h2>Top Commenters</h2>
+            <table id="commenters-table">
+                <thead>
+                    <tr>
+                        <th id="sort_name" onclick="sortValues('name')">Name</th>
+                        <th id="sort_commentsG" onclick="sortValues('commentsG')">Comments Given</th>
+                        <th id="sort_repliesG" onclick="sortValues('repliesG')">Replies Given</th>
+                        <th id="sort_interactions" onclick="sortValues('interactions')">Total Posts</th>
+                        <th id="sort_likesR" onclick="sortValues('likesR')">Likes Received</th>
+                        <th id="sort_repliesR" onclick="sortValues('repliesR')">Replies Received</th>
+                        <th id="sort_firstC" onclick="sortValues('firstC')">First Comment</th>
+                        <th id="sort_lastC" onclick="sortValues('lastC')">First Reply</th>
+                        <th id="sort_firstR" onclick="sortValues('firstR')">Last Comment</th>
+                        <th id="sort_lastR" onclick="sortValues('lastR')">Last Reply</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="chart.js"></script>
+    <script src="comments.js"></script>
+    <script src="date.js"></script>
+    <script src="jquery.js"></script>
+    <script src="generateAllDays.js"></script>
+    <script src="displayTopCommenters.js"></script>
+    <script src="updateTimestamps.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>

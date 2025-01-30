@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Comment Visualizer</title>
+    <style>
+        body {
+            background-color: #141414;
+            color: #FFF;
+            font-family: Arial, Helvetica, sans-serif;
+            margin-top: 3em;
+        }
+
+        .bar {
+            height: 50px;
+            display: flex;
+            gap: 10px;
+            font-size: 0.7em;
+            -webkit-transition: width 0.3s ease;
+            -moz-transition: width 0.3s ease;
+            -o-transition: width 0.3s ease;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+            margin-bottom: 1em;
+            width: 100%;
+        }
+
+        .count {
+            font-size: 2.5em;
+            margin-top: 0.3em;
+        }
+
+        img {
+            border-radius: 15%;
+        }
+
+        #date {
+            float: right;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 id="date">Date: 00/00/00</h1>
+    <div id="barChartRace"></div>
+
+
+    <script src="stuff.js"></script>
+    <script src="labels.js"></script>
+    <script src="jquery.js"></script>
+    <script src="generateAllDays.js"></script>
+    <script src="displayTopCommenters.js"></script>
+    <script src="updateTimestamps.js"></script>
+    <script src="isotope.js"></script>
+    <script>
+        const most = 3000/2;
+        //let labels = [];
+        //let users = [];
+
+        function createBarChartRaceData(comments) {
+            const oldestCommentTime = new Date(Math.min(...comments.map(item => new Date(item.topLevelComment.snippet.publishedAt).getTime())));
+            const newestCommentTime = new Date(Math.max(...comments.map(item => new Date(item.topLevelComment.snippet.publishedAt).getTime())));
+
+            const labels = generateAllDays(oldestCommentTime, newestCommentTime);
+            let realUsers = [];
+
+            Object.values(commenters).forEach(user => {
+                realUsers.push({
+                    name: user.name,
+                    image: user.image,
+                    daily: new Array(labels.length).fill(0), // Initialize daily counts with 0
+                });
+            });
+
+            // Count comments per day (optimized)
+            comments.forEach(comment => {
+                const publishedAt = comment.topLevelComment.snippet.publishedAt.split('T')[0];
+                const labelIndex = labels.indexOf(publishedAt);
+
+                if (labelIndex !== -1) { // Ensure the comment date is within the labels range
+                    const user = realUsers.find(user => comment.topLevelComment.snippet.authorDisplayName === user.name);
+                    if (user) user.daily[labelIndex]++;
+                }
+
+                comment.replies.forEach(reply => {
+                    const replyUser = realUsers.find(user => reply.authorDisplayName === user.name);
+                    if (replyUser && labelIndex !== -1) {
+                        replyUser.daily[labelIndex]++;
+                    }
+                });
+            });
+
+            // Calculate cumulative totals (optimized)
+            realUsers.forEach(user => {
+                for (let i = 1; i < user.daily.length; i++) {
+                    user.daily[i] += user.daily[i - 1];
+                }
+            });
+
+            return { realUsers, labels };
+        }
+
+        let interval;
+        let index = 0;
+
+        const randomColorGen = function () {
+            return '#' + (Math.random() * 0xFFFFFF << 0).toString(16).padStart(6, '0');
+        }
+
+        async function firstLoad() {
+            /*await displayTopCommenters(comments);
+            let res = await createBarChartRaceData(comments);
+            labels = res.labels;
+            users = res.realUsers;
+
+            let inTop50 = new Set();  // Use a Set to avoid duplicates
+
+            labels.forEach((item, i) => {
+                let currentInTop50 = [];
+                users.forEach(user => {
+                    if (currentInTop50.length < 50) {
+                        currentInTop50.push(user);
+                    } else {
+                        currentInTop50 = currentInTop50.sort((a, b) => b.daily[i] - a.daily[i]);
+                        if (currentInTop50[49].daily[i] < user.daily[i]) {
+                            currentInTop50[49] = user;
+                        }
+                    }
+                });
+
+                // Add all users in the top 50 for this day to the inTop50 Set
+                currentInTop50.forEach(user => {
+                    inTop50.add(user);  // Add the user name to the Set
+                });
+            });
+
+            // Convert Set to Array and log it
+            users = Array.from(inTop50);
+            var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(labels));
+            var dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", "labels.json");
+            dlAnchorElem.click();*/
+
+            const barChartRace = document.getElementById('barChartRace');
+            const userElements = {};
+
+            // Create all bars initially
+            users.forEach(user => {
+                if (!userElements[user.name]) {
+                    const div = document.createElement('div');
+                    div.id = `user-${user.name}`;
+                    div.setAttribute('data-count', user.daily[0]/2);
+                    div.className = 'bar';
+                    div.innerHTML = `<img src="${user.image}">
+                        <div class="width" id="width-${user.name}">
+                            <h2>${user.name}</h2>
+                            </div>
+                        <p class="count" id="count-${user.name}">${Math.floor(user.daily[0]/2)}</p>
+                            `;
+                    barChartRace.appendChild(div);
+                    userElements[user.name] = div;
+                    document.getElementById(`width-${user.name}`).style.backgroundColor = randomColorGen();
+                    iso.appended(document.getElementById("user-" + (user.name)));
+                }
+            });
+
+            interval = setInterval(updateChart, 0);
+        }
+
+        const container = document.getElementById("barChartRace");
+
+        const iso = new Isotope(container, {
+            itemSelector: '.bar',
+            layoutMode: 'vertical',
+            getSortData: {
+                count: function (item) {
+                    return parseInt(item.getAttribute('data-count'))
+                }
+            }
+        });
+
+        function updateChart() {
+            if (!labels[index]) {
+                return clearInterval(interval);
+            }
+
+            users.forEach(user => {
+                if (user.daily[index] > 0) {
+                    document.getElementById(`width-${user.name}`).style.display = '';
+                    document.getElementById(`width-${user.name}`).style.width = ((user.daily[index]/2) / most) * 100 + '%';
+                    document.getElementById(`count-${user.name}`).textContent = Math.floor((user.daily[index]/2)).toLocaleString('en-US');
+                    document.getElementById(`count-${user.name}`).style.marginLeft = ((user.daily[index]/2) / most) + '%';
+                    document.getElementById(`user-${user.name}`).setAttribute('data-count', user.daily[index]/2);
+                } else {
+                    document.getElementById(`width-${user.name}`).style.width = 0;
+                    document.getElementById(`width-${user.name}`).style.display = 'none';
+                }
+            })
+            index++;
+            console.log(labels[index]);
+            document.getElementById("date").innerText = 'Date: ' + labels[index];
+
+            iso.updateSortData();
+            iso.arrange({
+                sortBy: 'count',
+                sortAscending: false
+            })
+        }
+        firstLoad();
+    </script>
+</body>
+
+</html>
