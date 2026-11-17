@@ -1,133 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Comment Analysis</title>
-    <link rel="stylesheet" href="styles.css">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5666487244102554"
-    crossorigin="anonymous"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comment Stats</title>
+  <meta name="description" content="Leaderboards, activity charts and profiles for every comment on the channel.">
+  <script>try { const t = localStorage.getItem('comment-stats:theme'); if (t) document.documentElement.dataset.theme = t; } catch { }</script>
+  <link rel="stylesheet" href="css/styles.css">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5666487244102554" crossorigin="anonymous"></script>
 </head>
-
 <body>
-    <div id="app">
-        <h1>YouTube Comment Analysis</h1>
-        <div class="totals">
-            <div>
-                <h1 id="comments">0</h1>
-                <h2>Comments</h2>
-            </div>
-            <div>
-                <h1 id="replies">0</h1>
-                <h2>Replies</h2>
-            </div>
-            <div>
-                <h1 id="likes">0</h1>
-                <h2>Likes</h2>
-            </div>
-            <div>
-                <h1 id="totalPosts">0</h1>
-                <h2>Total Posts</h2>
-            </div>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo" aria-hidden="true"></span>
+      <div>
+        <h1>Comment Stats</h1>
+        <p class="sub" id="updated">Loading…</p>
+      </div>
+    </div>
+    <nav class="actions">
+      <a class="btn" href="race.html">Bar chart race</a>
+      <label class="btn" title="Load a comments.json export from the Studio collector">
+        Import export<input type="file" id="import" accept=".json,application/json" hidden>
+      </label>
+      <button class="btn icon" id="theme" title="Toggle theme" aria-label="Toggle theme">◐</button>
+    </nav>
+  </header>
+
+  <div id="import-banner" class="banner" hidden></div>
+
+  <main>
+    <section class="kpis" id="kpis" aria-label="Totals"></section>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>Activity over time</h2>
+        <div class="seg" id="activity-bucket" role="group" aria-label="Group by">
+          <button data-v="day">Day</button><button data-v="week">Week</button><button data-v="month" class="on">Month</button>
         </div>
-        <hr>
-        <center>
-            <a href="./bar.html">View Bar Chart</a>
-            <h3>Last Update: 2025-01-26</h3>
-
-            <div class="chart-container">
-                <canvas id="engagementOverTimeChart"></canvas>
-            </div>
-        </center>
-        <div id="loader"></div>
-        <div id="user-profile" class="user-profile" style="display: none;">
-            <div id="user-details" class="profile-card">
-                <div class="detail-row">
-                    <p><strong>Name:</strong> <span id="user-name"></span></p>
-                    <p><strong>Total Comments:</strong> <span id="user-comments"></span></p>
-                </div>
-                <div class="detail-row">
-                    <p><strong>Total Replies:</strong> <span id="user-replies"></span></p>
-                    <p><strong>Total Interactions:</strong> <span id="user-interactions"></span></p>
-                </div>
-                <div class="detail-row">
-                    <p><strong>Likes Received:</strong> <span id="user-likes"></span></p>
-                    <p><strong>Replies Received:</strong> <span id="user-replies-received"></span></p>
-                </div>
-                <div class="detail-row">
-                    <p><strong>First Comment:</strong> <span id="user-first-comment"></span></p>
-                    <p><strong>Last Comment:</strong> <span id="user-last-comment"></span></p>
-                </div>
-                <div class="detail-row">
-                    <p><strong>First Reply:</strong> <span id="user-first-reply"></span></p>
-                    <p><strong>Last Reply:</strong> <span id="user-last-reply"></span></p>
-                </div>
-            </div>
-
-            <details class="collapsible-section">
-                <summary>All Comments</summary>
-                <div id="user-all-comments" class="collapsible-content"></div>
-            </details>
-
-            <details class="collapsible-section">
-                <summary>All Replies</summary>
-                <div id="user-all-replies" class="collapsible-content"></div>
-            </details>
-
-            <h3 class="graph-title">Engagement Graph</h3>
-            <center>
-                <p>A line graph of the users total likes and replies over time.</p>
-            </center>
-            <div class="chart-container">
-                <canvas id="engagementChart"></canvas>
-            </div>
-
-            <h3 class="graph-title">Interactions Chart</h3>
-            <center>
-                <p>A pie chart of who the user interacts with the most.</p>
-                <label id="uniqueReplyPeople">0 users</label>
-            </center>
-            <div class="chart-container">
-                <canvas id="interactionChart"></canvas>
-            </div>
+        <div class="seg" id="activity-mode" role="group" aria-label="Mode">
+          <button data-v="count" class="on">Per period</button><button data-v="cumulative">Cumulative</button>
         </div>
+      </div>
+      <div class="chart tall"><canvas id="activity"></canvas></div>
+    </section>
 
-        <div class="topButtons">
-            <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
-            <button onclick="exportData('csv')">Export as CSV</button>
-            <button onclick="exportData('json')">Export as JSON</button>
+    <div class="grid-2">
+      <section class="card">
+        <div class="card-head"><h2>When people comment</h2><span class="hint">your local time</span></div>
+        <div id="heatmap" class="heatmap"></div>
+      </section>
+      <section class="card">
+        <div class="card-head"><h2>Most liked</h2>
+          <div class="seg" id="liked-kind" role="group"><button data-v="all" class="on">All</button><button data-v="c">Comments</button><button data-v="r">Replies</button></div>
         </div>
-        <div id="top-commenters">
-            <h2>Top Commenters</h2>
-            <table id="commenters-table">
-                <thead>
-                    <tr>
-                        <th id="sort_name" onclick="sortValues('name')">Name</th>
-                        <th id="sort_commentsG" onclick="sortValues('commentsG')">Comments Given</th>
-                        <th id="sort_repliesG" onclick="sortValues('repliesG')">Replies Given</th>
-                        <th id="sort_interactions" onclick="sortValues('interactions')">Total Posts</th>
-                        <th id="sort_likesR" onclick="sortValues('likesR')">Likes Received</th>
-                        <th id="sort_repliesR" onclick="sortValues('repliesR')">Replies Received</th>
-                        <th id="sort_firstC" onclick="sortValues('firstC')">First Comment</th>
-                        <th id="sort_lastC" onclick="sortValues('lastC')">First Reply</th>
-                        <th id="sort_firstR" onclick="sortValues('firstR')">Last Comment</th>
-                        <th id="sort_lastR" onclick="sortValues('lastR')">Last Reply</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
+        <ol id="top-liked" class="comment-list compact"></ol>
+      </section>
     </div>
 
-    <script src="chart.js"></script>
-    <script src="comments.js"></script>
-    <script src="date.js"></script>
-    <script src="jquery.js"></script>
-    <script src="generateAllDays.js"></script>
-    <script src="displayTopCommenters.js"></script>
-    <script src="updateTimestamps.js"></script>
-    <script src="script.js"></script>
-</body>
+    <section class="card" id="leaderboard">
+      <div class="card-head">
+        <h2>Top commenters</h2>
+        <input type="search" id="search" placeholder="Search people…" aria-label="Search people">
+        <div class="head-actions">
+          <button class="btn small" data-export="csv">Export CSV</button>
+          <button class="btn small" data-export="json">Export JSON</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table id="table">
+          <thead><tr>
+            <th data-k="rank" class="num">#</th>
+            <th data-k="name">Name</th>
+            <th data-k="commentsG" class="num">Comments</th>
+            <th data-k="repliesG" class="num">Replies</th>
+            <th data-k="interactions" class="num">Total posts</th>
+            <th data-k="likesR" class="num">Likes received</th>
+            <th data-k="repliesR" class="num">Replies received</th>
+            <th data-k="firstC">First comment</th>
+            <th data-k="lastC">Last comment</th>
+            <th data-k="firstR">First reply</th>
+            <th data-k="lastR">Last reply</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="pager" id="pager"></div>
+    </section>
+  </main>
 
+  <dialog id="profile" aria-labelledby="p-name">
+    <div class="profile">
+      <header class="p-head">
+        <img id="p-img" alt="" referrerpolicy="no-referrer">
+        <div>
+          <h2 id="p-name"></h2>
+          <a id="p-channel" target="_blank" rel="noopener">View channel ↗</a>
+        </div>
+        <button class="btn icon close" id="p-close" aria-label="Close">✕</button>
+      </header>
+      <div class="p-stats" id="p-stats"></div>
+      <div class="grid-2">
+        <section>
+          <h3>Posts over time</h3>
+          <div class="chart"><canvas id="p-chart"></canvas></div>
+        </section>
+        <section>
+          <h3>Talks with most <span class="hint" id="p-unique"></span></h3>
+          <div class="seg" id="p-int-dir" role="group"><button data-v="to" class="on">They reply to</button><button data-v="by">Replies them</button></div>
+          <div class="chart"><canvas id="p-int"></canvas></div>
+        </section>
+      </div>
+      <section>
+        <div class="card-head">
+          <h3>Posts</h3>
+          <div class="seg" id="p-kind" role="group"><button data-v="all" class="on">All</button><button data-v="c">Comments</button><button data-v="r">Replies</button></div>
+          <div class="seg" id="p-sort" role="group"><button data-v="new" class="on">Newest</button><button data-v="old">Oldest</button><button data-v="likes">Most liked</button></div>
+          <input type="search" id="p-search" placeholder="Search posts…" aria-label="Search posts">
+        </div>
+        <ol id="p-posts" class="comment-list"></ol>
+        <button class="btn more" id="p-more" hidden>Show more</button>
+      </section>
+    </div>
+  </dialog>
+
+  <div id="loader" class="loader" role="status"><div></div><span>Crunching comments…</span></div>
+
+  <script src="vendor/chart.umd.js"></script>
+  <script src="vendor/chartjs-adapter-date-fns.bundle.min.js"></script>
+  <script type="module" src="js/app.js"></script>
+</body>
 </html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Commenter Race</title>
+  <meta name="description" content="Animated bar chart race of the channel's top commenters over time.">
+  <script>try { const t = localStorage.getItem('comment-stats:theme'); if (t) document.documentElement.dataset.theme = t; } catch { }</script>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .race-wrap { position: relative; overflow: hidden; }
+    .race-date { position: absolute; right: 0; bottom: 0; font-size: clamp(2rem, 7vw, 4.5rem); font-weight: 800; color: var(--muted); opacity: .35; letter-spacing: -.03em; font-variant-numeric: tabular-nums; pointer-events: none; }
+    .race { position: relative; }
+    .bar { position: absolute; left: 0; right: 0; height: var(--h); display: grid; grid-template-columns: 2rem var(--h) minmax(6rem, 12rem) 1fr; align-items: center; gap: .5rem; transition: transform var(--dur, .45s) linear, opacity .3s; will-change: transform; }
+    .bar .rk { color: var(--muted); font-size: .8rem; text-align: right; font-variant-numeric: tabular-nums; }
+    .bar img { width: calc(var(--h) - 6px); height: calc(var(--h) - 6px); border-radius: 50%; background: var(--surface-2); object-fit: cover; }
+    .bar .track { position: relative; height: calc(var(--h) - 8px); display: flex; align-items: center; min-width: 0; }
+    .bar .fill { height: 100%; border-radius: 0 8px 8px 0; transition: width var(--dur, .45s) linear; min-width: 3px; }
+    .bar .label { font-weight: 600; font-size: .85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bar .val { margin-left: .5rem; font-weight: 700; font-variant-numeric: tabular-nums; font-size: .9rem; white-space: nowrap; }
+    @media (max-width: 640px) { .bar { grid-template-columns: 1.4rem var(--h) 5.5rem 1fr; gap: .35rem; } .bar .label { font-size: .75rem; } }
+    .controls { display: flex; flex-wrap: wrap; gap: .6rem 1rem; align-items: center; }
+    .controls input[type=range] { flex: 1 1 220px; accent-color: var(--accent); }
+    .controls label { font-size: .85rem; color: var(--muted); display: inline-flex; gap: .4rem; align-items: center; }
+    select { border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 999px; padding: .3rem .7rem; font: inherit; font-size: .85rem; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo" aria-hidden="true"></span>
+      <div><h1>Commenter Race</h1><p class="sub" id="updated">Loading…</p></div>
+    </div>
+    <nav class="actions"><a class="btn" href="./">← Dashboard</a></nav>
+  </header>
+  <main>
+    <section class="card">
+      <div class="controls">
+        <button class="btn primary" id="play">▶ Play</button>
+        <button class="btn" id="restart">↺ Restart</button>
+        <input type="range" id="scrub" min="0" value="0" aria-label="Date">
+        <label>Count <select id="metric"><option value="posts">Total posts</option><option value="c">Comments</option><option value="r">Replies</option><option value="likes">Likes received</option></select></label>
+        <label>Show <select id="topn"><option>10</option><option selected>15</option><option>20</option><option>30</option></select></label>
+        <label>Speed <select id="speed"><option value="1">Slow</option><option value="3" selected>Normal</option><option value="7">Fast</option><option value="20">Very fast</option></select></label>
+        <label>Step <select id="step"><option value="day">Day</option><option value="week" selected>Week</option><option value="month">Month</option></select></label>
+      </div>
+    </section>
+    <section class="card race-wrap">
+      <div class="race" id="race"></div>
+      <div class="race-date" id="date"></div>
+    </section>
+  </main>
+  <div id="loader" class="loader" role="status"><div></div><span>Building the race…</span></div>
+  <script type="module" src="js/race.js"></script>
+</body>
+</html>
